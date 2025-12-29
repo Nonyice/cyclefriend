@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block content %}
+
+<form method="POST">
+    <label>Last Period Date</label>
+    <input type="date" name="last_period" required>
+
+    <label>Cycle Length (days)</label>
+    <input type="number" name="cycle_length" value="28" required>
+
+    <button>Calculate</button>
+</form>
+
+{% if result %}
+<div class="result">
+    <p><b>Next Period:</b> {{ result.next_period.date() }}</p>
+    <p><b>Fertile Window:</b> {{ result.fertile_start.date() }} - {{ result.fertile_end.date() }}</p>
+    <p><b>Ovulation Peak:</b> 🌟 {{ result.ovulation.date() }}</p>
+</div>
+{% endif %}
+
+{% endblock %}

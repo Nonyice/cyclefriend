@@ -1,0 +1,36 @@
+body {
+    font-family: Arial;
+    background: #fff0f6;
+}
+
+header, footer {
+    background: #d63384;
+    color: white;
+    text-align: center;
+    padding: 10px;
+}
+
+main {
+    width: 400px;
+    margin: auto;
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+}
+
+button {
+    background: #d63384;
+    color: white;
+    border: none;
+    padding: 10px;
+    width: 100%;
+    border-radius: 5px;
+}
+
+.result {
+    margin-top: 15px;
+    background: #ffe3ec;
+    padding: 10px;
+    border-radius: 5px;
+}
+
