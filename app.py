@@ -14,7 +14,7 @@ login_manager.login_view = "auth.login"
 
 DATABASE_URL = os.getenv(
     "DATABASE_URL",
-    "postgresql://postgres:password@localhost:5432/cycle_tracker"
+    "postgresql://postgres:Mypostgresdb81@localhost:5432/cycle_tracker"
 )
 
 
