@@ -3,6 +3,8 @@ from flask_login import UserMixin, login_user, logout_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from db import get_db
 import psycopg2
+import os
+
 
 auth_bp = Blueprint("auth", __name__)
 
