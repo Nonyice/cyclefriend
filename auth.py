@@ -6,6 +6,11 @@ import psycopg2
 
 auth_bp = Blueprint("auth", __name__)
 
+DATABASE_URL = os.getenv(
+    "DATABASE_URL",
+    "postgresql://postgres:Mypostgresdb81@localhost:5432/cycle_tracker"
+)
+
 class User(UserMixin):
     def __init__(self, id, username):
         self.id = id
