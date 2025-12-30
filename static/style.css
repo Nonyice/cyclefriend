@@ -17,6 +17,23 @@ header, footer {
     text-align: center;
     padding: 15px;
 }
+.flash {
+    padding: 10px;
+    border-radius: 6px;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.flash.error {
+    background: #ffe3e3;
+    color: #c92a2a;
+}
+
+.flash.success {
+    background: #e6fcf5;
+    color: #087f5b;
+}
+
 
 footer {
     position: fixed;
