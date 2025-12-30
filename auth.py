@@ -3,7 +3,34 @@ from flask_login import UserMixin, login_user, logout_user
 from werkzeug.security import generate_password_hash, check_password_hash
 import psycopg2, os
 
-auth_bp = Blueprint("auth", __name__)
+auth_bp = Blueprint("auth", __name__)@auth_bp.route("/register", methods=["GET", "POST"])
+def register():
+    if request.method == "POST":
+        username = request.form["username"]
+        password = request.form["password"]
+        confirm = request.form["confirm_password"]
+
+        if password != confirm:
+            return render_template(
+                "register.html",
+                error="Passwords do not match"
+            )
+
+        hashed = generate_password_hash(password)
+
+        conn = get_db()
+        cur = conn.cursor()
+        cur.execute(
+            "INSERT INTO users (username, password) VALUES (%s, %s)",
+            (username, hashed)
+        )
+        conn.commit()
+        conn.close()
+
+        return redirect(url_for("auth.login"))
+
+    return render_template("register.html")
+
 
 DATABASE_URL = os.getenv(
     "DATABASE_URL",

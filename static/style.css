@@ -1,36 +1,107 @@
-body {
-    font-family: Arial;
-    background: #fff0f6;
+/* Global Reset */
+* {
+    box-sizing: border-box;
 }
 
+body {
+    font-family: "Segoe UI", Arial, sans-serif;
+    background: linear-gradient(135deg, #ffe3ec, #fff0f6);
+    margin: 0;
+    min-height: 100vh;
+}
+
+/* Header & Footer */
 header, footer {
     background: #d63384;
     color: white;
     text-align: center;
-    padding: 10px;
+    padding: 15px;
 }
 
+footer {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+}
+
+/* Main Container */
 main {
-    width: 400px;
-    margin: auto;
-    background: white;
-    padding: 20px;
-    border-radius: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-bottom: 80px;
 }
 
-button {
+/* Auth Card */
+.auth-container {
+    background: white;
+    width: 360px;
+    padding: 25px;
+    margin-top: 60px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+
+.auth-container h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #d63384;
+}
+
+/* Form */
+.auth-container form {
+    display: flex;
+    flex-direction: column;
+}
+
+.auth-container label {
+    font-size: 14px;
+    margin-bottom: 5px;
+    color: #444;
+}
+
+.auth-container input {
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+}
+
+.auth-container input:focus {
+    outline: none;
+    border-color: #d63384;
+}
+
+/* Button */
+.auth-container button {
     background: #d63384;
     color: white;
+    padding: 12px;
     border: none;
-    padding: 10px;
-    width: 100%;
-    border-radius: 5px;
+    border-radius: 6px;
+    font-size: 15px;
+    cursor: pointer;
+    transition: background 0.3s ease;
 }
 
-.result {
+.auth-container button:hover {
+    background: #b82a6c;
+}
+
+/* Links */
+.auth-link {
+    text-align: center;
     margin-top: 15px;
-    background: #ffe3ec;
-    padding: 10px;
-    border-radius: 5px;
+    font-size: 14px;
 }
 
+.auth-link a {
+    color: #d63384;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.auth-link a:hover {
+    text-decoration: underline;
+}

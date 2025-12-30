@@ -1,12 +1,14 @@
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,
     username VARCHAR(100) UNIQUE NOT NULL,
-    password TEXT NOT NULL
+    password TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE cycles (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER REFERENCES users(id),
-    last_period DATE,
-    cycle_length INTEGER
+    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    last_period DATE NOT NULL,
+    cycle_length INTEGER NOT NULL CHECK (cycle_length BETWEEN 21 AND 35),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
