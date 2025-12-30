@@ -5,7 +5,11 @@ import psycopg2, os
 
 auth_bp = Blueprint("auth", __name__)
 
-DATABASE_URL = os.getenv("DATABASE_URL")
+DATABASE_URL = os.getenv(
+    "DATABASE_URL",
+    "postgresql://postgres:password@localhost:5432/cycle_tracker"
+)
+
 
 def get_db():
     return psycopg2.connect(DATABASE_URL)
