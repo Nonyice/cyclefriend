@@ -56,6 +56,10 @@ def dashboard():
                 else:
                     error = "Please fill either Option 1 or Option 2 completely."
                     return render_template("dashboard.html", results=None, error=error)
+                    if not (21 <= cycle_length <= 35):
+                        error = "Computed cycle length is unrealistic (21-35 days). Please check your dates."
+                        return render_template("dashboard.html", results=None, error=error)
+
 
             # Compute results
             ovulation_day = last_period + timedelta(days=cycle_length - 14)
