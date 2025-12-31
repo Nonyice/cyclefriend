@@ -69,12 +69,11 @@ def login():
             return redirect(url_for("dashboard"))
 
         flash("Invalid username or password", "error")
-
     return render_template("login.html")
-if user and check_password_hash(user["password"], password):
-    session["user_id"] = user["id"]
-    flash("Login successful", "success")
-    return redirect(url_for("dashboard"))
+    if user and check_password_hash(user["password"], password):
+        session["user_id"] = user["id"]
+        flash("Login successful", "success")
+        return redirect(url_for("dashboard"))
 
 
 
