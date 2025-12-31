@@ -1,14 +1,19 @@
-import psycopg2
 import os
+import psycopg2
+from psycopg2.extras import RealDictCursor
 
 DATABASE_URL = os.getenv(
     "DATABASE_URL",
-    "postgresql://postgres:password@localhost:5432/cycle_tracker"
+    "postgresql://postgres:Mypostgresdb81@localhost:5432/cycle_tracker"
 )
 
-def get_db():
+def get_db_connection():
     try:
-        return psycopg2.connect(DATABASE_URL)
-    except Exception as e:
+        conn = psycopg2.connect(
+            DATABASE_URL,
+            cursor_factory=RealDictCursor
+        )
+        return conn
+    except psycopg2.OperationalError as e:
         print("❌ Database connection failed:", e)
         return None
