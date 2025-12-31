@@ -38,15 +38,32 @@ def dashboard():
     results = None
 
     if request.method == "POST":
-        last_period_str = request.form["last_period"]
-        cycle_length = int(request.form["cycle_length"])
+        last_period_str = request.form.get("last_period")
+        cycle_length_str = request.form.get("cycle_length")
+        next_period_str = request.form.get("next_period")
 
         last_period = datetime.strptime(last_period_str, "%Y-%m-%d").date()
 
+        # CASE 1: User knows cycle length
+        if cycle_length_str:
+            cycle_length = int(cycle_length_str)
+
+        # CASE 2: User does NOT know cycle length
+        elif next_period_str:
+            next_period = datetime.strptime(next_period_str, "%Y-%m-%d").date()
+            cycle_length = (next_period - last_period).days
+
+        else:
+            return render_template(
+                "dashboard.html",
+                error="Please provide cycle length or next period date."
+            )
+
+        # Calculations
         ovulation_day = last_period + timedelta(days=cycle_length - 14)
         fertile_start = ovulation_day - timedelta(days=5)
         fertile_end = ovulation_day
-        next_period = last_period + timedelta(days=cycle_length)
+        predicted_next_period = last_period + timedelta(days=cycle_length)
 
         results = {
             "last_period": last_period,
@@ -54,10 +71,10 @@ def dashboard():
             "ovulation_day": ovulation_day,
             "fertile_start": fertile_start,
             "fertile_end": fertile_end,
-            "next_period": next_period,
+            "next_period": predicted_next_period,
         }
 
-        # Save to DB (optional but good)
+        # Save to DB
         conn = get_db_connection()
         cur = conn.cursor()
         cur.execute(

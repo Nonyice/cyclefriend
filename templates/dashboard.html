@@ -5,6 +5,22 @@
     <p><strong>Last Period:</strong> {{ results.last_period }}</p>
     <p><strong>Cycle Length:</strong> {{ results.cycle_length }} days</p>
 
+    <form method="POST">
+    <label>Last Menstrual Date</label>
+    <input type="date" name="last_period" required>
+
+    <label>Cycle Length (if known)</label>
+    <input type="number" name="cycle_length" placeholder="e.g. 28">
+
+    <p style="text-align:center;">— OR —</p>
+
+    <label>Next Menstrual Date (if cycle length unknown)</label>
+    <input type="date" name="next_period">
+
+    <button type="submit">Calculate</button>
+</form>
+
+
     <hr>
 
     <p>🌸 <strong>Fertile Window:</strong><br>
