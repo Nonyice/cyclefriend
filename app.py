@@ -35,25 +35,29 @@ app.register_blueprint(auth_bp)
 @app.route("/dashboard", methods=["GET", "POST"])
 @login_required
 def dashboard():
-    fertile_window = []
-    peak_day = None
+    results = None
 
     if request.method == "POST":
-        last_period = datetime.strptime(
-            request.form["last_period"], "%Y-%m-%d"
-        ).date()
+        last_period_str = request.form["last_period"]
         cycle_length = int(request.form["cycle_length"])
 
-        ovulation_day = last_period + timedelta(days=cycle_length - 14)
-        fertile_window = [
-            ovulation_day - timedelta(days=2),
-            ovulation_day - timedelta(days=1),
-            ovulation_day,
-            ovulation_day + timedelta(days=1),
-            ovulation_day + timedelta(days=2),
-        ]
-        peak_day = ovulation_day
+        last_period = datetime.strptime(last_period_str, "%Y-%m-%d").date()
 
+        ovulation_day = last_period + timedelta(days=cycle_length - 14)
+        fertile_start = ovulation_day - timedelta(days=5)
+        fertile_end = ovulation_day
+        next_period = last_period + timedelta(days=cycle_length)
+
+        results = {
+            "last_period": last_period,
+            "cycle_length": cycle_length,
+            "ovulation_day": ovulation_day,
+            "fertile_start": fertile_start,
+            "fertile_end": fertile_end,
+            "next_period": next_period,
+        }
+
+        # Save to DB (optional but good)
         conn = get_db_connection()
         cur = conn.cursor()
         cur.execute(
@@ -67,11 +71,8 @@ def dashboard():
         cur.close()
         conn.close()
 
-    return render_template(
-        "dashboard.html",
-        fertile_window=fertile_window,
-        peak_day=peak_day
-    )
+    return render_template("dashboard.html", results=results)
+
 if __name__ == "__main__":
     app.run()
 

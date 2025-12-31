@@ -122,3 +122,16 @@ main {
 .auth-link a:hover {
     text-decoration: underline;
 }
+
+.results {
+    background: #fff0f6;
+    padding: 20px;
+    margin-top: 20px;
+    border-radius: 10px;
+    border-left: 5px solid #ff69b4;
+}
+
+.results h3 {
+    color: #d63384;
+}
+
