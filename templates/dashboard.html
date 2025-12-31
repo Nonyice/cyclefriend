@@ -1,21 +1,39 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>🌸 Cycle Tracker Dashboard</h2>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+    {% for category, message in messages %}
+        <div class="flash {{ category }}">{{ message }}</div>
+    {% endfor %}
+{% endif %}
+{% endwith %}
+
+{% if error %}
+    <div class="error">{{ error }}</div>
+{% endif %}
+
 <form method="POST">
+    <h3>Option 1: I know my cycle length</h3>
     <label>Last Menstrual Date</label>
-    <input type="date" name="last_period" required>
+    <input type="date" name="last_period_known" value="{{ request.form.last_period_known }}">
+    
+    <label>Cycle Length (days)</label>
+    <input type="number" name="cycle_length" value="{{ request.form.cycle_length }}" placeholder="e.g. 28">
 
-    <label>Cycle Length (if known)</label>
-    <input type="number" name="cycle_length" placeholder="e.g. 28">
+    <hr>
 
-    <p style="text-align:center;">— OR —</p>
-
-    <label>Next Menstrual Date (if cycle length unknown)</label>
-    <input type="date" name="next_period">
+    <h3>Option 2: I don’t know my cycle length</h3>
+    <label>Previous Menstrual Date</label>
+    <input type="date" name="previous_period" value="{{ request.form.previous_period }}">
+    
+    <label>Last Menstrual Date</label>
+    <input type="date" name="last_period_unknown" value="{{ request.form.last_period_unknown }}">
 
     <button type="submit">Calculate</button>
 </form>
-
-{% if error %}
-<div class="error">{{ error }}</div>
-{% endif %}
 
 {% if results %}
 <div class="results">
@@ -27,3 +45,4 @@
     <p>🩸 <strong>Expected Next Period:</strong> {{ results.next_period }}</p>
 </div>
 {% endif %}
+{% endblock %}

@@ -35,63 +35,62 @@ def dashboard():
     error = None
 
     if request.method == "POST":
-        last_period_str = request.form.get("last_period")
-        cycle_length_str = request.form.get("cycle_length")
-        next_period_str = request.form.get("next_period")
+        try:
+            # Option 1: User knows cycle length
+            last_period_str = request.form.get("last_period_known")
+            cycle_length_str = request.form.get("cycle_length")
+            
+            if last_period_str and cycle_length_str:
+                last_period = datetime.strptime(last_period_str, "%Y-%m-%d").date()
+                cycle_length = int(cycle_length_str)
 
-        if not last_period_str:
-            error = "Please enter your last menstrual period."
-        else:
-            last_period = datetime.strptime(last_period_str, "%Y-%m-%d").date()
-
-            # Case 1: User knows cycle length
-            if cycle_length_str:
-                try:
-                    cycle_length = int(cycle_length_str)
-                except ValueError:
-                    error = "Cycle length must be a number."
-            # Case 2: User does not know cycle length, enter next period
-            elif next_period_str:
-                try:
-                    next_period = datetime.strptime(next_period_str, "%Y-%m-%d").date()
-                    cycle_length = (next_period - last_period).days
-                except ValueError:
-                    error = "Invalid next period date."
+            # Option 2: User does NOT know cycle length
             else:
-                error = "Please enter either cycle length or next period date."
+                prev_period_str = request.form.get("previous_period")
+                last_period_str = request.form.get("last_period_unknown")
 
-            # Only calculate if no errors
-            if not error:
-                ovulation_day = last_period + timedelta(days=cycle_length - 14)
-                fertile_start = ovulation_day - timedelta(days=5)
-                fertile_end = ovulation_day
-                predicted_next_period = last_period + timedelta(days=cycle_length)
+                if prev_period_str and last_period_str:
+                    previous_period = datetime.strptime(prev_period_str, "%Y-%m-%d").date()
+                    last_period = datetime.strptime(last_period_str, "%Y-%m-%d").date()
+                    cycle_length = (last_period - previous_period).days
+                else:
+                    error = "Please fill either Option 1 or Option 2 completely."
+                    return render_template("dashboard.html", results=None, error=error)
 
-                results = {
-                    "last_period": last_period,
-                    "cycle_length": cycle_length,
-                    "ovulation_day": ovulation_day,
-                    "fertile_start": fertile_start,
-                    "fertile_end": fertile_end,
-                    "next_period": predicted_next_period,
-                }
+            # Compute results
+            ovulation_day = last_period + timedelta(days=cycle_length - 14)
+            fertile_start = ovulation_day - timedelta(days=5)
+            fertile_end = ovulation_day
+            predicted_next_period = last_period + timedelta(days=cycle_length)
 
-                # Save to DB
-                try:
-                    conn = get_db_connection()
-                    cur = conn.cursor()
-                    cur.execute(
-                        """
-                        INSERT INTO cycles (user_id, last_period, cycle_length)
-                        VALUES (%s, %s, %s)
-                        """,
-                        (session["user_id"], last_period, cycle_length)
-                    )
-                    conn.commit()
-                    cur.close()
-                    conn.close()
-                except Exception as e:
-                    flash(f"Error saving to database: {e}", "error")
+            results = {
+                "last_period": last_period,
+                "cycle_length": cycle_length,
+                "ovulation_day": ovulation_day,
+                "fertile_start": fertile_start,
+                "fertile_end": fertile_end,
+                "next_period": predicted_next_period,
+            }
+
+            # Save to DB
+            try:
+                conn = get_db_connection()
+                cur = conn.cursor()
+                cur.execute(
+                    """
+                    INSERT INTO cycles (user_id, last_period, cycle_length)
+                    VALUES (%s, %s, %s)
+                    """,
+                    (session["user_id"], last_period, cycle_length)
+                )
+                conn.commit()
+                cur.close()
+                conn.close()
+            except Exception as e:
+                flash(f"Error saving to database: {e}", "error")
+
+        except ValueError:
+            error = "Invalid date or cycle length."
 
     return render_template("dashboard.html", results=results, error=error)
 
