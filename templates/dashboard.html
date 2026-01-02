@@ -1,68 +1,86 @@
 {% extends "base.html" %}
-
 {% block content %}
-<div class="container">
 
-    <h2 class="page-title">Your Cycle Results</h2>
+<div class="dashboard-container">
 
-    {% if error %}
-        <div class="alert error">
-            {{ error }}
-        </div>
+  <h2 class="title">Cycle Prediction</h2>
+  <p class="subtitle">Select the option that best describes you</p>
 
-        <div class="actions">
-            <a href="{{ url_for('select_mode') }}" class="btn secondary">
-                Try Again
-            </a>
-        </div>
-    {% endif %}
+  <!-- =========================
+       ERROR MESSAGE
+  ========================== -->
+  {% if error %}
+    <div class="alert error">{{ error }}</div>
+  {% endif %}
 
-    {% if results %}
-        <div class="results-grid">
+  <!-- =========================
+       MODE SELECTION
+  ========================== -->
+  <form method="POST" action="{{ url_for('dashboard') }}" class="card">
 
-            <div class="result-card">
-                <h3>Cycle Length</h3>
-                <p>{{ results.cycle_length }} days</p>
-            </div>
+    <div class="radio-group">
+      <label>
+        <input type="radio" name="mode" value="known" required>
+        I know my cycle length
+      </label>
 
-            <div class="result-card highlight">
-                <h3>Ovulation Day</h3>
-                <p>{{ results.ovulation_day.strftime('%B %d, %Y') }}</p>
-            </div>
+      <label>
+        <input type="radio" name="mode" value="unknown" required>
+        I don’t know my cycle length
+      </label>
+    </div>
 
-            <div class="result-card">
-                <h3>Fertile Window</h3>
-                <p>
-                    {{ results.fertile_start.strftime('%B %d') }}
-                    –
-                    {{ results.fertile_end.strftime('%B %d, %Y') }}
-                </p>
-            </div>
+    <!-- =========================
+         MODE: KNOWN
+    ========================== -->
+    <div class="form-section">
+      <h4>Known Cycle</h4>
 
-            <div class="result-card highlight">
-                <h3>Next Expected Period</h3>
-                <p>{{ results.next_period.strftime('%B %d, %Y') }}</p>
-            </div>
+      <label>Last period start date</label>
+      <input type="date" name="last_period">
 
-        </div>
+      <label>Cycle length (days)</label>
+      <input type="number" name="cycle_length" min="21" max="35">
+    </div>
 
-        <div class="note">
-            <p>
-                These dates are estimates and may vary based on stress,
-                health, and lifestyle changes.
-            </p>
-        </div>
+    <!-- =========================
+         MODE: UNKNOWN
+    ========================== -->
+    <div class="form-section">
+      <h4>Unknown Cycle</h4>
 
-        <div class="actions">
-            <a href="{{ url_for('select_mode') }}" class="btn">
-                Calculate Again
-            </a>
+      <label>Previous period start date</label>
+      <input type="date" name="previous_period">
 
-            <a href="{{ url_for('auth.logout') }}" class="btn secondary">
-                Logout
-            </a>
-        </div>
-    {% endif %}
+      <label>Last period start date</label>
+      <input type="date" name="last_period">
+    </div>
+
+    <button type="submit" class="btn-primary">
+      Calculate Cycle
+    </button>
+
+  </form>
+
+  <!-- =========================
+       RESULTS
+  ========================== -->
+  {% if results %}
+    <div class="results card">
+      <h3>Your Cycle Results</h3>
+
+      <ul>
+        <li><strong>Last Period:</strong> {{ results.last_period }}</li>
+        <li><strong>Cycle Length:</strong> {{ results.cycle_length }} days</li>
+        <li><strong>Ovulation Day:</strong> {{ results.ovulation_day }}</li>
+        <li><strong>Fertile Window:</strong>
+          {{ results.fertile_start }} – {{ results.fertile_end }}
+        </li>
+        <li><strong>Next Period:</strong> {{ results.next_period }}</li>
+      </ul>
+    </div>
+  {% endif %}
 
 </div>
+
 {% endblock %}
