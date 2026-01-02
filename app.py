@@ -39,7 +39,7 @@ def select_mode():
         elif mode == "unknown":
             return redirect(url_for("unknown_cycle"))
 
-    return render_template("select_mode.html")
+    return render_template("mode.html")
 
 
 @app.route("/dashboard", methods=["GET", "POST"])
