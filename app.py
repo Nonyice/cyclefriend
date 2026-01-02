@@ -41,6 +41,37 @@ def select_mode():
 
     return render_template("mode.html")
 
+@app.route("/known-cycle", methods=["GET", "POST"])
+@login_required
+def known_cycle():
+    if request.method == "POST":
+        last_period = request.form.get("last_period")
+        cycle_length = int(request.form.get("cycle_length"))
+
+        # ---- computation logic ----
+        # next_period = last_period + cycle_length
+        # fertile_window, ovulation, etc.
+
+        return redirect(url_for("dashboard"))
+
+    return render_template("known_cycle.html")
+
+@app.route("/unknown-cycle", methods=["GET", "POST"])
+@login_required
+def unknown_cycle():
+    if request.method == "POST":
+        previous_period = request.form.get("previous_period")
+        last_period = request.form.get("last_period")
+
+        # ---- computation logic ----
+        # cycle_length = difference between the two dates
+        # then compute predictions
+
+        return redirect(url_for("dashboard"))
+
+    return render_template("unknown_cycle.html")
+
+
 
 @app.route("/dashboard", methods=["GET", "POST"])
 @login_required
