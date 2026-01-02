@@ -42,49 +42,92 @@ def select_mode():
     return render_template("select_mode.html")
 
 
-@app.route("/dashboard", methods=["POST"])
+@app.route("/dashboard", methods=["GET", "POST"])
 @login_required
 def dashboard():
-    mode = request.form.get("mode")
-    error = None
     results = None
+    error = None
 
-    if mode == "known":
-        last_period = datetime.strptime(
-            request.form["last_period"], "%Y-%m-%d"
-        ).date()
-        cycle_length = int(request.form["cycle_length"])
+    if request.method == "POST":
+        mode = request.form.get("mode")
+        cycle_length = None  # 🔑 always initialize
 
-    elif mode == "unknown":
-        previous_period = datetime.strptime(
-            request.form["previous_period"], "%Y-%m-%d"
-        ).date()
-        last_period = datetime.strptime(
-            request.form["last_period"], "%Y-%m-%d"
-        ).date()
+        try:
+            # =============================
+            # MODE 1: USER KNOWS CYCLE
+            # =============================
+            if mode == "known":
+                last_period_str = request.form.get("last_period")
+                cycle_length_str = request.form.get("cycle_length")
 
-        cycle_length = (last_period - previous_period).days
+                if not last_period_str or not cycle_length_str:
+                    error = "Please provide both last period date and cycle length."
+                else:
+                    last_period = datetime.strptime(last_period_str, "%Y-%m-%d").date()
+                    cycle_length = int(cycle_length_str)
 
-    # Validate cycle length
-    if not (21 <= cycle_length <= 35):
-        error = "Cycle length seems unusual. Please check your dates."
-        return render_template("dashboard.html", error=error)
+            # =============================
+            # MODE 2: USER DOES NOT KNOW CYCLE
+            # =============================
+            elif mode == "unknown":
+                previous_period_str = request.form.get("previous_period")
+                last_period_str = request.form.get("last_period")
 
-    # Calculations
-    ovulation_day = last_period + timedelta(days=cycle_length - 14)
-    fertile_start = ovulation_day - timedelta(days=5)
-    fertile_end = ovulation_day
-    next_period = last_period + timedelta(days=cycle_length)
+                if not previous_period_str or not last_period_str:
+                    error = "Please provide both menstrual dates."
+                else:
+                    previous_period = datetime.strptime(previous_period_str, "%Y-%m-%d").date()
+                    last_period = datetime.strptime(last_period_str, "%Y-%m-%d").date()
+                    cycle_length = (last_period - previous_period).days
 
-    results = {
-        "cycle_length": cycle_length,
-        "ovulation_day": ovulation_day,
-        "fertile_start": fertile_start,
-        "fertile_end": fertile_end,
-        "next_period": next_period,
-    }
+            else:
+                error = "Invalid selection."
 
-    return render_template("dashboard.html", results=results)
+            # =============================
+            # VALIDATION (after assignment)
+            # =============================
+            if not error:
+                if cycle_length < 21 or cycle_length > 35:
+                    error = "Cycle length must be between 21 and 35 days."
+
+            # =============================
+            # CALCULATION
+            # =============================
+            if not error:
+                ovulation_day = last_period + timedelta(days=cycle_length - 14)
+                fertile_start = ovulation_day - timedelta(days=5)
+                fertile_end = ovulation_day
+                next_period = last_period + timedelta(days=cycle_length)
+
+                results = {
+                    "last_period": last_period,
+                    "cycle_length": cycle_length,
+                    "ovulation_day": ovulation_day,
+                    "fertile_start": fertile_start,
+                    "fertile_end": fertile_end,
+                    "next_period": next_period,
+                }
+
+                # =============================
+                # SAVE TO DATABASE
+                # =============================
+                conn = get_db_connection()
+                cur = conn.cursor()
+                cur.execute(
+                    """
+                    INSERT INTO cycles (user_id, last_period, cycle_length)
+                    VALUES (%s, %s, %s)
+                    """,
+                    (session["user_id"], last_period, cycle_length)
+                )
+                conn.commit()
+                cur.close()
+                conn.close()
+
+        except ValueError:
+            error = "Invalid date or number entered."
+
+    return render_template("dashboard.html", results=results, error=error)
 
 if __name__ == "__main__":
     app.run(debug=True)
