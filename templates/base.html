@@ -1,58 +1,168 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>{% block title %}CycleFriend{% endblock %}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CycleFriend</title>
+  
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+
+  <!-- Main Styles -->
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Roboto', sans-serif;
+    }
+
+    body {
+      background: url('/static/reproductive_cycle.png') no-repeat center center fixed;
+      background-size: cover;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      background: linear-gradient(90deg, #ffb6c1, #ff69b4); /* pink gradient */
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    header nav a {
+      color: white;
+      text-decoration: none;
+      margin: 0 10px;
+      font-weight: bold;
+      padding: 5px 12px;
+      border-radius: 8px;
+      transition: 0.3s;
+    }
+
+    header nav a:hover {
+      background-color: rgba(255,255,255,0.2);
+    }
+
+    .button {
+      background-color: #ff7eb9;
+      color: white;
+      padding: 5px 12px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: bold;
+      margin-left: 10px;
+      transition: 0.3s;
+    }
+
+    .button:hover {
+      background-color: #ff4da6;
+    }
+
+    main {
+      flex: 1;
+      padding: 20px;
+      background-color: rgba(255, 255, 255, 0.85); /* slightly transparent for readability */
+      margin: 20px auto;
+      border-radius: 15px;
+      max-width: 900px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+    }
+
+    footer {
+      background-color: #ffb6c1;
+      text-align: center;
+      padding: 15px 0;
+      font-size: 0.9rem;
+      color: #333;
+      font-weight: bold;
+      margin-top: auto;
+    }
+
+    /* Flash messages */
+    .flash {
+      padding: 10px 15px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      font-weight: bold;
+      text-align: center;
+      transition: opacity 0.5s ease-out;
+    }
+
+    .flash.success { background-color: #d4edda; color: #155724; }
+    .flash.error { background-color: #f8d7da; color: #721c24; }
+    .flash.info { background-color: #cce5ff; color: #004085; }
+
+    /* Responsive nav for mobile */
+    @media (max-width: 768px) {
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      header nav {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+      }
+      header nav a {
+        margin: 5px 0;
+      }
+    }
+  </style>
 </head>
-
 <body>
+  
+  <!-- Header -->
+  <header>
+    <h1>🌸 CycleFriend 🌸</h1>
+    <nav>
+      <a href="{{ url_for('dashboard') }}">Dashboard</a>
+      {% if current_user.is_authenticated %}
+        <span style="color:white; font-weight:bold;">Welcome, {{ current_user.username }}!</span>
+        <a href="{{ url_for('auth.logout') }}" class="button">Logout</a>
+      {% else %}
+        <a href="{{ url_for('auth.login') }}" class="button">Login</a>
+        <a href="{{ url_for('auth.register') }}" class="button">Register</a>
+      {% endif %}
+    </nav>
+  </header>
 
-<!-- 🌸 HEADER -->
-<header class="header">
-    <div class="header-content">
-        <h1 class="brand">🌸 CycleFriend</h1>
-
-        {% if current_user.is_authenticated %}
-        <div class="user-area">
-            <span class="username">Hi, {{ current_user.username }}</span>
-            <a href="{{ url_for('auth.logout') }}" class="logout-btn">Logout</a>
-        </div>
-        {% endif %}
-    </div>
-</header>
-
-<!-- 🌸 FLASH MESSAGES -->
-<div class="flash-container">
+  <!-- Flash messages -->
+  <div id="flash-container">
     {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            {% for category, message in messages %}
-                <div class="flash {{ category }}">{{ message }}</div>
-            {% endfor %}
-        {% endif %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="flash {{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
     {% endwith %}
-</div>
+  </div>
 
-<!-- 🌸 MAIN CONTENT -->
-<main class="main-content">
+  <!-- Main content -->
+  <main>
     {% block content %}{% endblock %}
-</main>
+  </main>
 
-<!-- 🌸 FOOTER -->
-<footer class="footer">
-    <p>🌷 CycleFriend © {{ datetime.utcnow().year }} • Your wellness companion</p>
-</footer>
+  <!-- Footer -->
+  <footer>
+    <p>🌷 CycleFriend © {{ current_year }} • Your wellness companion</p>
+  </footer>
 
-<!-- 🌸 FLASH AUTO-HIDE -->
-<script>
+  <!-- JS for flash messages -->
+  <script>
     setTimeout(() => {
-        document.querySelectorAll('.flash').forEach(el => {
-            el.style.opacity = '0';
-            setTimeout(() => el.remove(), 600);
-        });
-    }, 5000);
-</script>
+      const flashes = document.querySelectorAll('.flash');
+      flashes.forEach(flash => flash.style.opacity = '0');
+    }, 5000); // hide after 5 seconds
+  </script>
 
 </body>
 </html>
