@@ -11,12 +11,34 @@
 
 <main>
     {% block content %}{% endblock %}
-   {% with messages = get_flashed_messages(with_categories=true) %}
+   <!-- Flash messages block -->
+{% with messages = get_flashed_messages(with_categories=true) %}
   {% if messages %}
-    {% for category, message in messages %}
-      <div class="flash {{ category }}">{{ message }}</div>
-    {% endfor %}
+    <div id="flash-container">
+      {% for category, message in messages %}
+        <div class="flash {{ category }}">{{ message }}</div>
+      {% endfor %}
+    </div>
   {% endif %}
+{% endwith %}
+
+<!-- JavaScript to auto-hide flash messages -->
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    const flashes = document.querySelectorAll(".flash");
+
+    flashes.forEach(function(flash) {
+      setTimeout(function() {
+        // Fade out
+        flash.style.transition = "opacity 0.5s ease-out";
+        flash.style.opacity = "0";
+        // Remove from DOM after fade
+        setTimeout(() => flash.remove(), 500);
+      }, 5000); // 5000ms = 5 seconds
+    });
+  });
+</script>
+
 {% endwith %}
 
 
