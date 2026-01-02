@@ -1,86 +1,97 @@
 {% extends "base.html" %}
-{% block content %}
+{% block title %}Dashboard{% endblock %}
 
+{% block content %}
 <div class="dashboard-container">
 
-  <h2 class="title">Cycle Prediction</h2>
-  <p class="subtitle">Select the option that best describes you</p>
+  <h1>Cycle Tracker</h1>
 
-  <!-- =========================
-       ERROR MESSAGE
-  ========================== -->
   {% if error %}
-    <div class="alert error">{{ error }}</div>
+    <div class="error">{{ error }}</div>
   {% endif %}
 
-  <!-- =========================
-       MODE SELECTION
-  ========================== -->
-  <form method="POST" action="{{ url_for('dashboard') }}" class="card">
-
-    <div class="radio-group">
-      <label>
-        <input type="radio" name="mode" value="known" required>
-        I know my cycle length
-      </label>
-
-      <label>
-        <input type="radio" name="mode" value="unknown" required>
-        I don’t know my cycle length
-      </label>
-    </div>
-
-    <!-- =========================
-         MODE: KNOWN
-    ========================== -->
-    <div class="form-section">
-      <h4>Known Cycle</h4>
-
-      <label>Last period start date</label>
-      <input type="date" name="last_period">
-
-      <label>Cycle length (days)</label>
-      <input type="number" name="cycle_length" min="21" max="35">
-    </div>
-
-    <!-- =========================
-         MODE: UNKNOWN
-    ========================== -->
-    <div class="form-section">
-      <h4>Unknown Cycle</h4>
-
-      <label>Previous period start date</label>
-      <input type="date" name="previous_period">
-
-      <label>Last period start date</label>
-      <input type="date" name="last_period">
-    </div>
-
-    <button type="submit" class="btn-primary">
-      Calculate Cycle
-    </button>
-
-  </form>
-
-  <!-- =========================
-       RESULTS
-  ========================== -->
   {% if results %}
-    <div class="results card">
-      <h3>Your Cycle Results</h3>
-
-      <ul>
-        <li><strong>Last Period:</strong> {{ results.last_period }}</li>
-        <li><strong>Cycle Length:</strong> {{ results.cycle_length }} days</li>
-        <li><strong>Ovulation Day:</strong> {{ results.ovulation_day }}</li>
-        <li><strong>Fertile Window:</strong>
-          {{ results.fertile_start }} – {{ results.fertile_end }}
-        </li>
-        <li><strong>Next Period:</strong> {{ results.next_period }}</li>
-      </ul>
+    <div class="results-cards">
+      <div class="card">
+        <h3>Last Period</h3>
+        <p>{{ results.last_period.strftime('%d %b %Y') }}</p>
+      </div>
+      <div class="card">
+        <h3>Cycle Length</h3>
+        <p>{{ results.cycle_length }} days</p>
+      </div>
+      <div class="card">
+        <h3>Ovulation Day</h3>
+        <p>{{ results.ovulation_day.strftime('%d %b %Y') }}</p>
+      </div>
+      <div class="card">
+        <h3>Fertile Window</h3>
+        <p>{{ results.fertile_start.strftime('%d %b %Y') }} – {{ results.fertile_end.strftime('%d %b %Y') }}</p>
+      </div>
+      <div class="card">
+        <h3>Next Period</h3>
+        <p>{{ results.next_period.strftime('%d %b %Y') }}</p>
+      </div>
     </div>
+    <div class="actions">
+      <a href="{{ url_for('mode') }}" class="button">Compute Again</a>
+    </div>
+  {% else %}
+    <p>Please select your mode and enter your cycle information.</p>
+    <a href="{{ url_for('mode') }}" class="button">Start</a>
   {% endif %}
 
 </div>
 
+<style>
+.dashboard-container {
+  max-width: 700px;
+  margin: 2rem auto;
+  text-align: center;
+  font-family: sans-serif;
+}
+h1 {
+  margin-bottom: 1rem;
+}
+.results-cards {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+.card {
+  background: #f9f9f9;
+  border-radius: 10px;
+  padding: 1rem 1.5rem;
+  width: 200px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+.card h3 {
+  margin-bottom: 0.5rem;
+  color: #333;
+}
+.card p {
+  font-size: 1.1rem;
+  color: #555;
+}
+.button {
+  display: inline-block;
+  margin-top: 1.5rem;
+  padding: 0.6rem 1.2rem;
+  background: #007bff;
+  color: white;
+  border-radius: 6px;
+  text-decoration: none;
+  transition: background 0.2s;
+}
+.button:hover {
+  background: #0056b3;
+}
+.error {
+  color: red;
+  font-weight: bold;
+  margin-bottom: 1rem;
+}
+</style>
 {% endblock %}
