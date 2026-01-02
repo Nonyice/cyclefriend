@@ -6,7 +6,8 @@
 </head>
 <body>
 <header>
-    <nav>
+    
+  <nav>
   {% if current_user.is_authenticated %}
     <span class="user">
       Hi, {{ current_user.username }}
@@ -17,6 +18,7 @@
     </a>
   {% endif %}
 </nav>
+
 
     <h2>🌸 Cycle Tracker</h2>
 </header>

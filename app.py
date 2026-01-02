@@ -13,6 +13,7 @@ class User(UserMixin):
         self.username = username
 
 
+
 app = Flask(__name__)
 app.secret_key = "plimsoltech81"
 

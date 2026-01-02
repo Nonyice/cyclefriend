@@ -4,6 +4,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash,
 from werkzeug.security import generate_password_hash, check_password_hash
 from db import get_db_connection
 from flask_login import logout_user, login_required
+from flask import redirect, url_for, flash
 
 auth_bp = Blueprint("auth", __name__)
 
@@ -78,9 +79,13 @@ def login():
 
 
 
-@auth_bp.route("/logout")
+
+
+@app.route("/logout")
+@login_required
 def logout():
-    session.clear()
+    logout_user()
     flash("You have been logged out.", "success")
     return redirect(url_for("auth.login"))
+
 
