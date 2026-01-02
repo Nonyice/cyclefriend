@@ -9,9 +9,6 @@ from flask_login import UserMixin
 
 from datetime import datetime
 
-@app.context_processor
-def inject_datetime():
-    return {"datetime": datetime}
 
 
 class User(UserMixin):
@@ -23,6 +20,10 @@ class User(UserMixin):
 
 app = Flask(__name__)
 app.secret_key = "plimsoltech81"
+
+@app.context_processor
+def inject_datetime():
+    return {"datetime": datetime}
 
 login_manager = LoginManager()
 login_manager.init_app(app)
