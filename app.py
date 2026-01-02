@@ -28,6 +28,11 @@ def load_user(user_id):
 
 app.register_blueprint(auth_bp)
 
+@app.route("/")
+def home():
+    return redirect(url_for("auth.login"))
+
+
 @app.route("/select-mode", methods=["GET", "POST"])
 @login_required
 def select_mode():
