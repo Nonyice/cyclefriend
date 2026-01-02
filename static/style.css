@@ -49,19 +49,19 @@ body {
     font-weight: 500;
 }
 
-.logout-btn {
-    background: white;
-    color: #ff6f91;
-    padding: 6px 14px;
-    border-radius: 20px;
-    text-decoration: none;
-    font-weight: bold;
-    transition: 0.3s;
+.logout-button {
+  background-color: #ff7eb9;  /* soft pink */
+  color: white;
+  padding: 5px 12px;
+  border-radius: 8px;
+  text-decoration: none;
+  margin-left: 10px;
 }
 
-.logout-btn:hover {
-    background: #ffe3ec;
+.logout-button:hover {
+  background-color: #ff4da6;
 }
+
 
 /* ===== MAIN ===== */
 .main-content {
