@@ -6,6 +6,8 @@ from db import get_db_connection
 from flask_login import logout_user, login_required
 from flask import redirect, url_for, flash
 
+
+
 auth_bp = Blueprint("auth", __name__)
 
 # ---------------- REGISTER ----------------
@@ -81,11 +83,10 @@ def login():
 
 
 
-@app.route("/logout")
-@login_required
-def logout():
-    logout_user()
-    flash("You have been logged out.", "success")
-    return redirect(url_for("auth.login"))
 
+@auth_bp.route("/logout")
+def logout():
+    logout_user()          # Flask-Login logout
+    session.clear()        # Clear session data
+    return redirect(url_for("auth.login"))
 
