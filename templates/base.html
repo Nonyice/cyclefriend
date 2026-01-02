@@ -1,59 +1,58 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Cycle Tracker</title>
+    <meta charset="UTF-8">
+    <title>{% block title %}CycleFriend{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-<header>
-    
-  <nav>
- {% if current_user.is_authenticated %}
-  <a href="{{ url_for('auth.logout') }}">Logout</a>
-{% endif %}
 
-</nav>
+    <!-- ===== NAVBAR ===== -->
+    <nav class="navbar">
+        <div class="nav-left">
+            <a href="{{ url_for('dashboard') }}" class="logo">CycleFriend</a>
+        </div>
 
+        <div class="nav-right">
+            {% if current_user.is_authenticated %}
+                <span class="welcome">
+                    Hi, {{ current_user.username }}
+                </span>
 
-    <h2>🌸 Cycle Tracker</h2>
-</header>
+                <a href="{{ url_for('auth.logout') }}" class="logout-btn">
+                    Logout
+                </a>
+            {% endif %}
+        </div>
+    </nav>
 
-<main>
-    {% block content %}{% endblock %}
-   <!-- Flash messages block -->
-{% with messages = get_flashed_messages(with_categories=true) %}
-  {% if messages %}
-    <div id="flash-wrapper">
-      {% for category, message in messages %}
-        <div class="flash {{ category }}">{{ message }}</div>
-      {% endfor %}
+    <!-- ===== FLASH MESSAGES ===== -->
+    <div class="flash-container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash {{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
     </div>
-  {% endif %}
-{% endwith %}
 
+    <!-- ===== PAGE CONTENT ===== -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
 
-<script>
-  document.addEventListener("DOMContentLoaded", function () {
-    const flashes = document.querySelectorAll(".flash");
+    <!-- ===== FLASH AUTO-DISMISS ===== -->
+    <script>
+        setTimeout(() => {
+            document.querySelectorAll('.flash').forEach(el => {
+                el.style.opacity = '0';
+                setTimeout(() => el.remove(), 500);
+            });
+        }, 5000);
+    </script>
 
-    flashes.forEach((flash) => {
-      setTimeout(() => {
-        flash.style.transition = "opacity 0.5s ease, transform 0.5s ease";
-        flash.style.opacity = "0";
-        flash.style.transform = "translateY(-10px)";
-
-        setTimeout(() => flash.remove(), 500);
-      }, 5000);
-    });
-  });
-</script>
-
-
-
-</main>
-
-<footer>
-    <p>© 2025 PlimsolTech Production</p>
-</footer>
 </body>
 </html>
