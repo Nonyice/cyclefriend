@@ -7,6 +7,13 @@ from db import get_db_connection
 from utils import login_required   # if you moved it
 from flask_login import UserMixin
 
+from datetime import datetime
+
+@app.context_processor
+def inject_datetime():
+    return {"datetime": datetime}
+
+
 class User(UserMixin):
     def __init__(self, id, username):
         self.id = id
