@@ -28,75 +28,63 @@ def load_user(user_id):
 
 app.register_blueprint(auth_bp)
 
-@app.route("/dashboard", methods=["GET", "POST"])
+@app.route("/select-mode", methods=["GET", "POST"])
+@login_required
+def select_mode():
+    if request.method == "POST":
+        mode = request.form.get("mode")
+
+        if mode == "known":
+            return redirect(url_for("known_cycle"))
+        elif mode == "unknown":
+            return redirect(url_for("unknown_cycle"))
+
+    return render_template("select_mode.html")
+
+
+@app.route("/dashboard", methods=["POST"])
 @login_required
 def dashboard():
-    results = None
+    mode = request.form.get("mode")
     error = None
+    results = None
 
-    if request.method == "POST":
-        try:
-            # Option 1: User knows cycle length
-            last_period_str = request.form.get("last_period_known")
-            cycle_length_str = request.form.get("cycle_length")
-            
-            if last_period_str and cycle_length_str:
-                last_period = datetime.strptime(last_period_str, "%Y-%m-%d").date()
-                cycle_length = int(cycle_length_str)
+    if mode == "known":
+        last_period = datetime.strptime(
+            request.form["last_period"], "%Y-%m-%d"
+        ).date()
+        cycle_length = int(request.form["cycle_length"])
 
-            # Option 2: User does NOT know cycle length
-            else:
-                prev_period_str = request.form.get("previous_period")
-                last_period_str = request.form.get("last_period_unknown")
+    elif mode == "unknown":
+        previous_period = datetime.strptime(
+            request.form["previous_period"], "%Y-%m-%d"
+        ).date()
+        last_period = datetime.strptime(
+            request.form["last_period"], "%Y-%m-%d"
+        ).date()
 
-                if prev_period_str and last_period_str:
-                    previous_period = datetime.strptime(prev_period_str, "%Y-%m-%d").date()
-                    last_period = datetime.strptime(last_period_str, "%Y-%m-%d").date()
-                    cycle_length = (last_period - previous_period).days
-                else:
-                    error = "Please fill either Option 1 or Option 2 completely."
-                    return render_template("dashboard.html", results=None, error=error)
-                    if not (21 <= cycle_length <= 35):
-                        error = "Computed cycle length is unrealistic (21-35 days). Please check your dates."
-                        return render_template("dashboard.html", results=None, error=error)
+        cycle_length = (last_period - previous_period).days
 
+    # Validate cycle length
+    if not (21 <= cycle_length <= 35):
+        error = "Cycle length seems unusual. Please check your dates."
+        return render_template("dashboard.html", error=error)
 
-            # Compute results
-            ovulation_day = last_period + timedelta(days=cycle_length - 14)
-            fertile_start = ovulation_day - timedelta(days=5)
-            fertile_end = ovulation_day
-            predicted_next_period = last_period + timedelta(days=cycle_length)
+    # Calculations
+    ovulation_day = last_period + timedelta(days=cycle_length - 14)
+    fertile_start = ovulation_day - timedelta(days=5)
+    fertile_end = ovulation_day
+    next_period = last_period + timedelta(days=cycle_length)
 
-            results = {
-                "last_period": last_period,
-                "cycle_length": cycle_length,
-                "ovulation_day": ovulation_day,
-                "fertile_start": fertile_start,
-                "fertile_end": fertile_end,
-                "next_period": predicted_next_period,
-            }
+    results = {
+        "cycle_length": cycle_length,
+        "ovulation_day": ovulation_day,
+        "fertile_start": fertile_start,
+        "fertile_end": fertile_end,
+        "next_period": next_period,
+    }
 
-            # Save to DB
-            try:
-                conn = get_db_connection()
-                cur = conn.cursor()
-                cur.execute(
-                    """
-                    INSERT INTO cycles (user_id, last_period, cycle_length)
-                    VALUES (%s, %s, %s)
-                    """,
-                    (session["user_id"], last_period, cycle_length)
-                )
-                conn.commit()
-                cur.close()
-                conn.close()
-            except Exception as e:
-                flash(f"Error saving to database: {e}", "error")
-
-        except ValueError:
-            error = "Invalid date or cycle length."
-
-    return render_template("dashboard.html", results=results, error=error)
+    return render_template("dashboard.html", results=results)
 
 if __name__ == "__main__":
     app.run(debug=True)

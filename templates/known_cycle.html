@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card">
+    <h2>Known Cycle Length</h2>
+
+    <form method="POST" action="{{ url_for('dashboard') }}">
+        <input type="hidden" name="mode" value="known">
+
+        <label>Last Menstrual Date</label>
+        <input type="date" name="last_period" required>
+
+        <label>Cycle Length (days)</label>
+        <input type="number" name="cycle_length" min="21" max="35" required>
+
+        <button type="submit" class="btn">Calculate</button>
+    </form>
+</div>
+{% endblock %}

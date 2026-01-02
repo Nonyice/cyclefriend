@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card">
+    <h2>Cycle Calculation</h2>
+    <p>Select how you want to calculate your cycle</p>
+
+    <form method="POST" action="{{ url_for('select_mode') }}">
+        <button type="submit" name="mode" value="known" class="btn">
+            I know my cycle length
+        </button>
+
+        <button type="submit" name="mode" value="unknown" class="btn secondary">
+            I don’t know my cycle length
+        </button>
+    </form>
+</div>
+{% endblock %}

@@ -1,48 +1,68 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h2>🌸 Cycle Tracker Dashboard</h2>
+<div class="container">
 
-{% with messages = get_flashed_messages(with_categories=true) %}
-{% if messages %}
-    {% for category, message in messages %}
-        <div class="flash {{ category }}">{{ message }}</div>
-    {% endfor %}
-{% endif %}
-{% endwith %}
+    <h2 class="page-title">Your Cycle Results</h2>
 
-{% if error %}
-    <div class="error">{{ error }}</div>
-{% endif %}
+    {% if error %}
+        <div class="alert error">
+            {{ error }}
+        </div>
 
-<form method="POST">
-    <h3>Option 1: I know my cycle length</h3>
-    <label>Last Menstrual Date</label>
-    <input type="date" name="last_period_known" value="{{ request.form.last_period_known }}">
-    
-    <label>Cycle Length (days)</label>
-    <input type="number" name="cycle_length" value="{{ request.form.cycle_length }}" placeholder="e.g. 28">
+        <div class="actions">
+            <a href="{{ url_for('select_mode') }}" class="btn secondary">
+                Try Again
+            </a>
+        </div>
+    {% endif %}
 
-    <hr>
+    {% if results %}
+        <div class="results-grid">
 
-    <h3>Option 2: I don’t know my cycle length</h3>
-    <label>Previous Menstrual Date</label>
-    <input type="date" name="previous_period" value="{{ request.form.previous_period }}">
-    
-    <label>Last Menstrual Date</label>
-    <input type="date" name="last_period_unknown" value="{{ request.form.last_period_unknown }}">
+            <div class="result-card">
+                <h3>Cycle Length</h3>
+                <p>{{ results.cycle_length }} days</p>
+            </div>
 
-    <button type="submit">Calculate</button>
-</form>
+            <div class="result-card highlight">
+                <h3>Ovulation Day</h3>
+                <p>{{ results.ovulation_day.strftime('%B %d, %Y') }}</p>
+            </div>
 
-{% if results %}
-<div class="results">
-    <h3>📊 Cycle Results</h3>
-    <p><strong>Last Period:</strong> {{ results.last_period }}</p>
-    <p><strong>Cycle Length:</strong> {{ results.cycle_length }} days</p>
-    <p>🌸 <strong>Fertile Window:</strong> {{ results.fertile_start }} → {{ results.fertile_end }}</p>
-    <p>🔥 <strong>Ovulation Peak:</strong> {{ results.ovulation_day }}</p>
-    <p>🩸 <strong>Expected Next Period:</strong> {{ results.next_period }}</p>
+            <div class="result-card">
+                <h3>Fertile Window</h3>
+                <p>
+                    {{ results.fertile_start.strftime('%B %d') }}
+                    –
+                    {{ results.fertile_end.strftime('%B %d, %Y') }}
+                </p>
+            </div>
+
+            <div class="result-card highlight">
+                <h3>Next Expected Period</h3>
+                <p>{{ results.next_period.strftime('%B %d, %Y') }}</p>
+            </div>
+
+        </div>
+
+        <div class="note">
+            <p>
+                These dates are estimates and may vary based on stress,
+                health, and lifestyle changes.
+            </p>
+        </div>
+
+        <div class="actions">
+            <a href="{{ url_for('select_mode') }}" class="btn">
+                Calculate Again
+            </a>
+
+            <a href="{{ url_for('auth.logout') }}" class="btn secondary">
+                Logout
+            </a>
+        </div>
+    {% endif %}
+
 </div>
-{% endif %}
 {% endblock %}
