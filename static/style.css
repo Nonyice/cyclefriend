@@ -34,6 +34,13 @@ header, footer {
     color: #087f5b;
 }
 
+#flash-wrapper {
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+
 
 footer {
     position: fixed;
