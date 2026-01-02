@@ -4,55 +4,55 @@
     <meta charset="UTF-8">
     <title>{% block title %}CycleFriend{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
+
 <body>
 
-    <!-- ===== NAVBAR ===== -->
-    <nav class="navbar">
-        <div class="nav-left">
-            <a href="{{ url_for('dashboard') }}" class="logo">CycleFriend</a>
+<!-- 🌸 HEADER -->
+<header class="header">
+    <div class="header-content">
+        <h1 class="brand">🌸 CycleFriend</h1>
+
+        {% if current_user.is_authenticated %}
+        <div class="user-area">
+            <span class="username">Hi, {{ current_user.username }}</span>
+            <a href="{{ url_for('auth.logout') }}" class="logout-btn">Logout</a>
         </div>
-
-        <div class="nav-right">
-            {% if current_user.is_authenticated %}
-                <span class="welcome">
-                    Hi, {{ current_user.username }}
-                </span>
-
-                <a href="{{ url_for('auth.logout') }}" class="logout-btn">
-                    Logout
-                </a>
-            {% endif %}
-        </div>
-    </nav>
-
-    <!-- ===== FLASH MESSAGES ===== -->
-    <div class="flash-container">
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="flash {{ category }}">
-                        {{ message }}
-                    </div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
+        {% endif %}
     </div>
+</header>
 
-    <!-- ===== PAGE CONTENT ===== -->
-    <main>
-        {% block content %}{% endblock %}
-    </main>
+<!-- 🌸 FLASH MESSAGES -->
+<div class="flash-container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="flash {{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+</div>
 
-    <!-- ===== FLASH AUTO-DISMISS ===== -->
-    <script>
-        setTimeout(() => {
-            document.querySelectorAll('.flash').forEach(el => {
-                el.style.opacity = '0';
-                setTimeout(() => el.remove(), 500);
-            });
-        }, 5000);
-    </script>
+<!-- 🌸 MAIN CONTENT -->
+<main class="main-content">
+    {% block content %}{% endblock %}
+</main>
+
+<!-- 🌸 FOOTER -->
+<footer class="footer">
+    <p>🌷 CycleFriend © {{ datetime.utcnow().year }} • Your wellness companion</p>
+</footer>
+
+<!-- 🌸 FLASH AUTO-HIDE -->
+<script>
+    setTimeout(() => {
+        document.querySelectorAll('.flash').forEach(el => {
+            el.style.opacity = '0';
+            setTimeout(() => el.remove(), 600);
+        });
+    }, 5000);
+</script>
 
 </body>
 </html>

@@ -2,20 +2,121 @@
 * {
     box-sizing: border-box;
 }
-
-body {
-    font-family: "Segoe UI", Arial, sans-serif;
-    background: linear-gradient(135deg, #ffe3ec, #fff0f6);
+/* ===== GLOBAL ===== */
+* {
     margin: 0;
-    min-height: 100vh;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Segoe UI", sans-serif;
 }
 
-/* Header & Footer */
-header, footer {
-    background: #d63384;
+body {
+    background: linear-gradient(to bottom right, #fff0f5, #fdeff2);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ===== HEADER ===== */
+.header {
+    background: linear-gradient(135deg, #ff9ebc, #ff6f91);
+    padding: 1.2rem 2rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.header-content {
+    max-width: 1100px;
+    margin: auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.brand {
     color: white;
+    font-size: 1.8rem;
+    font-weight: bold;
+}
+
+.user-area {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.username {
+    color: white;
+    font-weight: 500;
+}
+
+.logout-btn {
+    background: white;
+    color: #ff6f91;
+    padding: 6px 14px;
+    border-radius: 20px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.logout-btn:hover {
+    background: #ffe3ec;
+}
+
+/* ===== MAIN ===== */
+.main-content {
+    flex: 1;
+    max-width: 1100px;
+    margin: 2rem auto;
+    padding: 1.5rem;
+}
+
+/* ===== FLASH ===== */
+.flash-container {
+    position: fixed;
+    top: 90px;
+    right: 20px;
+    z-index: 999;
+}
+
+.flash {
+    padding: 14px 18px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    color: white;
+    font-weight: 500;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+    transition: opacity 0.6s ease;
+}
+
+.flash.success { background: #ff6f91; }
+.flash.error { background: #e74c3c; }
+.flash.info { background: #f39c12; }
+
+/* ===== FOOTER ===== */
+.footer {
+    background: #ff6f91;
     text-align: center;
-    padding: 15px;
+    padding: 1rem;
+    color: white;
+    font-size: 0.9rem;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+    .header-content {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .user-area {
+        flex-direction: column;
+    }
+
+    .flash-container {
+        right: 10px;
+        left: 10px;
+    }
 }
 .flash {
     padding: 10px;
