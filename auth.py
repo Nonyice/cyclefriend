@@ -3,6 +3,7 @@ import psycopg2
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session
 from werkzeug.security import generate_password_hash, check_password_hash
 from db import get_db_connection
+from flask_login import logout_user, login_required
 
 auth_bp = Blueprint("auth", __name__)
 

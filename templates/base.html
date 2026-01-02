@@ -6,6 +6,18 @@
 </head>
 <body>
 <header>
+    <nav>
+  {% if current_user.is_authenticated %}
+    <span class="user">
+      Hi, {{ current_user.username }}
+    </span>
+
+    <a href="{{ url_for('logout') }}" class="logout-link">
+      Logout
+    </a>
+  {% endif %}
+</nav>
+
     <h2>🌸 Cycle Tracker</h2>
 </header>
 

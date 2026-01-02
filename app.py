@@ -5,6 +5,13 @@ from datetime import datetime, timedelta
 from auth import auth_bp
 from db import get_db_connection
 from utils import login_required   # if you moved it
+from flask_login import UserMixin
+
+class User(UserMixin):
+    def __init__(self, id, username):
+        self.id = id
+        self.username = username
+
 
 app = Flask(__name__)
 app.secret_key = "plimsoltech81"

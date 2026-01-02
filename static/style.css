@@ -40,6 +40,18 @@ header, footer {
     transform: translateX(-50%);
 }
 
+.logout-link {
+  color: #fff;
+  background: #d9534f;
+  padding: 6px 12px;
+  border-radius: 4px;
+  text-decoration: none;
+}
+
+.logout-link:hover {
+  background: #c9302c;
+}
+
 
 
 footer {
