@@ -1,20 +1,32 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="card">
-    <h2>Cycle Estimation</h2>
-    <p>Enter your last two menstrual dates</p>
+<div class="form-wrapper">
+
+  <div class="form-card">
+    <h2>🩸 Cycle Estimation</h2>
+    <p class="subtitle">
+      Enter your two most recent menstrual dates
+    </p>
 
     <form method="POST" action="{{ url_for('dashboard') }}">
-        <input type="hidden" name="mode" value="unknown">
+      <input type="hidden" name="mode" value="unknown">
 
+      <div class="input-group">
         <label>Previous Menstrual Date</label>
         <input type="date" name="previous_period" required>
+      </div>
 
+      <div class="input-group">
         <label>Last Menstrual Date</label>
         <input type="date" name="last_period" required>
+      </div>
 
-        <button type="submit" class="btn">Calculate</button>
+      <button type="submit" class="primary-btn">
+        ✨ Estimate My Cycle
+      </button>
     </form>
+  </div>
+
 </div>
 {% endblock %}

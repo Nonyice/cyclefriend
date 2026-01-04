@@ -8,6 +8,10 @@ from utils import login_required   # if you moved it
 from flask_login import UserMixin
 
 from datetime import datetime
+from datetime import datetime
+
+
+
 
 
 
@@ -22,8 +26,10 @@ app = Flask(__name__)
 app.secret_key = "plimsoltech81"
 
 @app.context_processor
-def inject_datetime():
-    return {"datetime": datetime}
+def inject_current_year():
+    return {
+        "current_year": datetime.utcnow().year
+    }
 
 login_manager = LoginManager()
 login_manager.init_app(app)

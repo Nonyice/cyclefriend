@@ -32,6 +32,8 @@ body {
     align-items: center;
 }
 
+
+
 .brand {
     color: white;
     font-size: 1.8rem;
@@ -65,8 +67,8 @@ body {
 
 /* ===== MAIN ===== */
 .main-content {
-    flex: 1;
-    max-width: 1100px;
+    display: flex;
+    max-width: 100%;
     margin: 2rem auto;
     padding: 1.5rem;
 }
@@ -93,6 +95,86 @@ body {
 .flash.error { background: #e74c3c; }
 .flash.info { background: #f39c12; }
 
+/* Mode selection layout */
+.mode-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 60vh;
+}
+
+.mode-card {
+  background: white;
+  padding: 35px 30px;
+  border-radius: 20px;
+  max-width: 420px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+  animation: fadeInUp 0.6s ease;
+}
+
+.mode-card h2 {
+  color: #ff4da6;
+  margin-bottom: 10px;
+}
+
+.mode-card .subtitle {
+  color: #666;
+  font-size: 0.95rem;
+  margin-bottom: 25px;
+}
+
+/* Buttons container */
+.mode-container {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+/* Mode buttons */
+.mode-btn {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 16px 18px;
+  border-radius: 15px;
+  border: none;
+  background: linear-gradient(135deg, #ff7eb9, #ff65a3);
+  color: white;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 6px 15px rgba(255,105,180,0.3);
+}
+
+.mode-btn.secondary {
+  background: linear-gradient(135deg, #ffb6c1, #ff85b3);
+}
+
+/* Hover effects */
+.mode-btn:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 10px 25px rgba(255,105,180,0.45);
+}
+
+/* Icon styling */
+.mode-btn .icon {
+  font-size: 2rem;
+}
+
+/* Text styling */
+.mode-btn strong {
+  font-size: 1rem;
+  display: block;
+}
+
+.mode-btn small {
+  font-size: 0.8rem;
+  opacity: 0.9;
+}
+
+
 /* ===== FOOTER ===== */
 .footer {
     background: #ff6f91;
@@ -110,7 +192,7 @@ body {
     }
 
     .user-area {
-        flex-direction: column;
+        flex-direction: row;
     }
 
     .flash-container {
@@ -155,16 +237,13 @@ body {
 
 .navbar {
     display: flex;
+    flex-direction: row;
     justify-content: space-between;
     padding: 1rem 2rem;
     background: #f8f9fa;
 }
 
-.logout-btn {
-    color: #c0392b;
-    text-decoration: none;
-    font-weight: bold;
-}
+
 
 .flash-container {
     position: fixed;
@@ -182,6 +261,86 @@ body {
     transition: opacity 0.5s ease;
 }
 
+/* Form page wrapper */
+.form-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 60vh;
+}
+
+/* Card */
+.form-card {
+  background: white;
+  padding: 35px 30px;
+  border-radius: 20px;
+  max-width: 420px;
+  width: 100%;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+  animation: fadeInUp 0.6s ease;
+}
+
+.form-card h2 {
+  text-align: center;
+  color: #ff4da6;
+  margin-bottom: 8px;
+}
+
+.form-card .subtitle {
+  text-align: center;
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 25px;
+}
+
+/* Inputs */
+.input-group {
+  margin-bottom: 18px;
+}
+
+.input-group label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 6px;
+  color: #444;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  font-size: 0.95rem;
+  transition: all 0.25s ease;
+}
+
+.input-group input:focus {
+  outline: none;
+  border-color: #ff69b4;
+  box-shadow: 0 0 0 3px rgba(255,105,180,0.2);
+}
+
+/* Button */
+.primary-btn {
+  width: 100%;
+  padding: 14px;
+  border-radius: 14px;
+  border: none;
+  background: linear-gradient(135deg, #ff7eb9, #ff4da6);
+  color: white;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 6px 15px rgba(255,105,180,0.35);
+}
+
+.primary-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px rgba(255,105,180,0.45);
+}
+
+
 
 
 footer {
@@ -191,11 +350,13 @@ footer {
 }
 
 /* Main Container */
+
 main {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding-bottom: 80px;
+    width: 400px;
+    margin: auto;
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
 }
 
 /* Auth Card */
@@ -358,5 +519,29 @@ main {
     background: #ccc;
     color: #333;
 }
+
+  .mode-card {
+    padding: 25px 20px;
+  }
+
+  .mode-btn {
+    padding: 14px;
+  }
+
+
+/* Animation */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  
+}
+
 
 

@@ -3,12 +3,38 @@ import psycopg2
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session
 from werkzeug.security import generate_password_hash, check_password_hash
 from db import get_db_connection
-from flask_login import logout_user, login_required
-from flask import redirect, url_for, flash
-
-
+from flask_login import (
+    UserMixin,
+    login_user,
+    logout_user,
+    login_required
+)
 
 auth_bp = Blueprint("auth", __name__)
+
+
+# ---------------- USER MODEL ----------------
+class User(UserMixin):
+    def __init__(self, id, username):
+        self.id = id
+        self.username = username
+
+    @staticmethod
+    def get(user_id):
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT id, username FROM users WHERE id = %s",
+            (user_id,)
+        )
+        row = cur.fetchone()
+        cur.close()
+        conn.close()
+
+        if row:
+            return User(row["id"], row["username"])
+        return None
+
 
 # ---------------- REGISTER ----------------
 @auth_bp.route("/register", methods=["GET", "POST"])
@@ -36,9 +62,11 @@ def register():
             conn.commit()
             flash("Registration successful. Please login.", "success")
             return redirect(url_for("auth.login"))
+
         except psycopg2.errors.UniqueViolation:
             conn.rollback()
             flash("Username already exists", "error")
+
         finally:
             cur.close()
             conn.close()
@@ -54,39 +82,36 @@ def login():
         password = request.form["password"]
 
         conn = get_db_connection()
-        if not conn:
-            flash("Database unavailable", "error")
-            return redirect(url_for("auth.login"))
-
         cur = conn.cursor()
+
         cur.execute(
-            "SELECT id, password FROM users WHERE username = %s",
+            "SELECT id, username, password FROM users WHERE username = %s",
             (username,)
         )
-        user = cur.fetchone()
+        row = cur.fetchone()
+
         cur.close()
         conn.close()
 
-        if user and check_password_hash(user["password"], password):
-            session["user_id"] = user["id"]
+        if row and check_password_hash(row["password"], password):
+            user = User(row["id"], row["username"])
+            login_user(user)
+
+            session["user_id"] = user.id  # optional
             flash("Login successful", "success")
             return redirect(url_for("dashboard"))
 
         flash("Invalid username or password", "error")
+
     return render_template("login.html")
-    if user and check_password_hash(user["password"], password):
-        session["user_id"] = user["id"]
-        flash("Login successful", "success")
-        return redirect(url_for("dashboard"))
 
 
 
-
-
-
+# ---------------- LOGOUT ----------------
 @auth_bp.route("/logout")
+@login_required
 def logout():
-    logout_user()          # Flask-Login logout
-    session.clear()        # Clear session data
+    logout_user()
+    session.clear()
+    flash("You have logged out.", "success")
     return redirect(url_for("auth.login"))
-

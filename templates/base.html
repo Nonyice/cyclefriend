@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CycleFriend</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
   
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
@@ -32,7 +33,7 @@
       justify-content: space-between;
       align-items: center;
       flex-wrap: wrap;
-      position: sticky;
+      position: relative;
       top: 0;
       z-index: 1000;
       box-shadow: 0 4px 8px rgba(0,0,0,0.1);
@@ -67,16 +68,6 @@
       background-color: #ff4da6;
     }
 
-    main {
-      flex: 1;
-      padding: 20px;
-      background-color: rgba(255, 255, 255, 0.85); /* slightly transparent for readability */
-      margin: 20px auto;
-      border-radius: 15px;
-      max-width: 900px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-    }
-
     footer {
       background-color: #ffb6c1;
       text-align: center;
@@ -91,7 +82,7 @@
     .flash {
       padding: 10px 15px;
       border-radius: 8px;
-      margin-bottom: 10px;
+      margin-bottom: 5px;
       font-weight: bold;
       text-align: center;
       transition: opacity 0.5s ease-out;
@@ -126,7 +117,7 @@
     <nav>
       <a href="{{ url_for('dashboard') }}">Dashboard</a>
       {% if current_user.is_authenticated %}
-        <span style="color:white; font-weight:bold;">Welcome, {{ current_user.username }}!</span>
+        <span style="color:green; font-weight:bold;">Welcome, {{ current_user.username }}!</span>
         <a href="{{ url_for('auth.logout') }}" class="button">Logout</a>
       {% else %}
         <a href="{{ url_for('auth.login') }}" class="button">Login</a>
@@ -153,7 +144,7 @@
 
   <!-- Footer -->
   <footer>
-    <p>🌷 CycleFriend © {{ current_year }} • Your wellness companion</p>
+    <p>A Plimsoltech Production © {{ current_year }} • 🌷CycleFriend: Your wellness companion</p>
   </footer>
 
   <!-- JS for flash messages -->

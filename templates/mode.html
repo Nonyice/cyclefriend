@@ -1,18 +1,33 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="card">
-    <h2>Cycle Calculation</h2>
-    <p>Select how you want to calculate your cycle</p>
+<div class="mode-wrapper">
 
-    <form method="POST" action="{{ url_for('select_mode') }}">
-        <button type="submit" name="mode" value="known" class="btn">
-            I know my cycle length
-        </button>
+  <div class="mode-card">
+    <h2>🌸 Cycle Calculation</h2>
+    <p class="subtitle">How would you like to calculate your cycle?</p>
 
-        <button type="submit" name="mode" value="unknown" class="btn secondary">
-            I don’t know my cycle length
-        </button>
+    <form method="POST" action="{{ url_for('select_mode') }}" class="mode-container">
+
+      <button type="submit" name="mode" value="known" class="mode-btn">
+        <span class="icon">📅</span>
+        <span>
+          <strong>I know my cycle length</strong>
+          <small>Enter your last period & cycle days</small>
+        </span>
+      </button>
+
+      <button type="submit" name="mode" value="unknown" class="mode-btn secondary">
+        <span class="icon">❓</span>
+        <span>
+          <strong>I don’t know my cycle length</strong>
+          <small>We’ll calculate it for you</small>
+        </span>
+      </button>
+
     </form>
+  </div>
+
 </div>
 {% endblock %}
+
