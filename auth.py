@@ -1,19 +1,14 @@
-import os
-import psycopg2
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session
 from werkzeug.security import generate_password_hash, check_password_hash
-from db import get_db_connection
-from flask_login import (
-    UserMixin,
-    login_user,
-    logout_user,
-    login_required
-)
+from flask_login import UserMixin, login_user, logout_user, login_required
+from sqlalchemy.exc import IntegrityError
+
+from extensions import db
+from models import UserAccount
 
 auth_bp = Blueprint("auth", __name__)
 
 
-# ---------------- USER MODEL ----------------
 class User(UserMixin):
     def __init__(self, id, username):
         self.id = id
@@ -21,83 +16,52 @@ class User(UserMixin):
 
     @staticmethod
     def get(user_id):
-        conn = get_db_connection()
-        cur = conn.cursor()
-        cur.execute(
-            "SELECT id, username FROM users WHERE id = %s",
-            (user_id,)
-        )
-        row = cur.fetchone()
-        cur.close()
-        conn.close()
-
+        row = UserAccount.query.get(int(user_id))
         if row:
-            return User(row["id"], row["username"])
+            return User(row.id, row.username)
         return None
 
 
-# ---------------- REGISTER ----------------
 @auth_bp.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
         username = request.form["username"]
         password = request.form["password"]
-        confirm = request.form["confirm_password"]
+        confirm  = request.form["confirm_password"]
 
         if password != confirm:
             flash("Passwords do not match", "error")
             return redirect(url_for("auth.register"))
 
-        conn = get_db_connection()
-        if not conn:
-            flash("Database unavailable", "error")
-            return redirect(url_for("auth.register"))
+        new_user = UserAccount(
+            username=username,
+            password=generate_password_hash(password)
+        )
 
-        cur = conn.cursor()
         try:
-            cur.execute(
-                "INSERT INTO users (username, password) VALUES (%s, %s)",
-                (username, generate_password_hash(password))
-            )
-            conn.commit()
+            db.session.add(new_user)
+            db.session.commit()
             flash("Registration successful. Please login.", "success")
             return redirect(url_for("auth.login"))
-
-        except psycopg2.errors.UniqueViolation:
-            conn.rollback()
+        except IntegrityError:
+            db.session.rollback()
             flash("Username already exists", "error")
-
-        finally:
-            cur.close()
-            conn.close()
+            return redirect(url_for("auth.register"))
 
     return render_template("register.html")
 
 
-# ---------------- LOGIN ----------------
 @auth_bp.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
         username = request.form["username"]
         password = request.form["password"]
 
-        conn = get_db_connection()
-        cur = conn.cursor()
+        row = UserAccount.query.filter_by(username=username).first()
 
-        cur.execute(
-            "SELECT id, username, password FROM users WHERE username = %s",
-            (username,)
-        )
-        row = cur.fetchone()
-
-        cur.close()
-        conn.close()
-
-        if row and check_password_hash(row["password"], password):
-            user = User(row["id"], row["username"])
+        if row and check_password_hash(row.password, password):
+            user = User(row.id, row.username)
             login_user(user)
-
-            session["user_id"] = user.id  # optional
             flash("Login successful", "success")
             return redirect(url_for("dashboard"))
 
@@ -106,8 +70,6 @@ def login():
     return render_template("login.html")
 
 
-
-# ---------------- LOGOUT ----------------
 @auth_bp.route("/logout")
 @login_required
 def logout():

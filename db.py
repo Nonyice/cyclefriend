@@ -1,19 +1,4 @@
-import os
-import psycopg2
-from psycopg2.extras import RealDictCursor
+# db.py is no longer needed for connections — SQLAlchemy handles everything.
+# This file is kept only as a safe placeholder so any stale imports don't break.
 
-DATABASE_URL = os.getenv(
-    "DATABASE_URL",
-    "postgresql://postgres:Mypostgresdb81@localhost:5432/cycle_tracker"
-)
-
-def get_db_connection():
-    try:
-        conn = psycopg2.connect(
-            DATABASE_URL,
-            cursor_factory=RealDictCursor
-        )
-        return conn
-    except psycopg2.OperationalError as e:
-        print("❌ Database connection failed:", e)
-        return None
+# You can safely delete this file once you've confirmed nothing else imports it.

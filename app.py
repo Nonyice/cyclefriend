@@ -1,60 +1,53 @@
-from flask import Flask, render_template, redirect, url_for, request, session, flash
+import os
+from flask import Flask, render_template, redirect, url_for, request
 from flask_login import LoginManager, login_required, current_user
-import psycopg2, os
 from datetime import datetime, timedelta
-from auth import auth_bp
-from db import get_db_connection
-from utils import login_required   # if you moved it
-from flask_login import UserMixin
+from dotenv import load_dotenv
 
-from datetime import datetime
-from datetime import datetime
+from extensions import db
+from models import UserAccount, Cycle
 
-
-
-
-
-
-class User(UserMixin):
-    def __init__(self, id, username):
-        self.id = id
-        self.username = username
-
-
+load_dotenv()
 
 app = Flask(__name__)
-app.secret_key = "plimsoltech81"
 
-@app.context_processor
-def inject_current_year():
-    return {
-        "current_year": datetime.utcnow().year
-    }
+# ─── Config ─────────────────────────────
+app.secret_key = os.environ.get("SECRET_KEY", "dev_key")
 
+uri = os.environ.get("DATABASE_URL", "sqlite:///local.db")
+if uri.startswith("postgres://"):
+    uri = uri.replace("postgres://", "postgresql://", 1)
+
+app.config["SQLALCHEMY_DATABASE_URI"] = uri
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
+# ─── Init DB ────────────────────────────
+db.init_app(app)
+
+# ─── Login ──────────────────────────────
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = "auth.login"
-
-DATABASE_URL = os.getenv(
-    "DATABASE_URL",
-    "postgresql://postgres:Mypostgresdb81@localhost:5432/cycle_tracker"
-)
-
-def get_db():
-    return psycopg2.connect(DATABASE_URL)
 
 @login_manager.user_loader
 def load_user(user_id):
     from auth import User
     return User.get(user_id)
 
+# ─── Blueprint ──────────────────────────
+from auth import auth_bp
 app.register_blueprint(auth_bp)
 
+@app.before_request
+def log():
+    print("➡️", request.method, request.path)
+
+# ─── Home ───────────────────────────────
 @app.route("/")
 def home():
     return redirect(url_for("auth.login"))
 
-
+# ─── MODE SELECTION ─────────────────────
 @app.route("/select-mode", methods=["GET", "POST"])
 @login_required
 def select_mode():
@@ -73,13 +66,16 @@ def select_mode():
 def known_cycle():
     if request.method == "POST":
         last_period = request.form.get("last_period")
-        cycle_length = int(request.form.get("cycle_length"))
+        cycle_length = request.form.get("cycle_length")
 
-        # ---- computation logic ----
-        # next_period = last_period + cycle_length
-        # fertile_window, ovulation, etc.
+        if not last_period or not cycle_length:
+            return render_template("known_cycle.html", error="All fields required")
 
-        return redirect(url_for("dashboard"))
+        return redirect(url_for(
+            "dashboard",
+            last_period=last_period,
+            cycle_length=cycle_length
+        ))
 
     return render_template("known_cycle.html")
 
@@ -87,105 +83,80 @@ def known_cycle():
 @login_required
 def unknown_cycle():
     if request.method == "POST":
-        previous_period = request.form.get("previous_period")
-        last_period = request.form.get("last_period")
+        previous = request.form.get("previous_period")
+        last = request.form.get("last_period")
 
-        # ---- computation logic ----
-        # cycle_length = difference between the two dates
-        # then compute predictions
+        if not previous or not last:
+            return render_template("unknown_cycle.html", error="All fields required")
 
-        return redirect(url_for("dashboard"))
+        try:
+            previous_date = datetime.strptime(previous, "%Y-%m-%d").date()
+            last_date = datetime.strptime(last, "%Y-%m-%d").date()
+
+            cycle_length = (last_date - previous_date).days
+
+            return redirect(url_for(
+                "dashboard",
+                last_period=last,
+                cycle_length=cycle_length
+            ))
+
+        except Exception:
+            return render_template("unknown_cycle.html", error="Invalid dates")
 
     return render_template("unknown_cycle.html")
 
-
-
-@app.route("/dashboard", methods=["GET", "POST"])
+# ─── DASHBOARD ──────────────────────────
+@app.route("/dashboard")
 @login_required
 def dashboard():
     results = None
     error = None
 
-    if request.method == "POST":
-        mode = request.form.get("mode")
-        cycle_length = None  # 🔑 always initialize
+    last_period = request.args.get("last_period")
+    cycle_length = request.args.get("cycle_length")
 
+    if last_period and cycle_length:
         try:
-            # =============================
-            # MODE 1: USER KNOWS CYCLE
-            # =============================
-            if mode == "known":
-                last_period_str = request.form.get("last_period")
-                cycle_length_str = request.form.get("cycle_length")
+            last_period = datetime.strptime(last_period, "%Y-%m-%d").date()
+            cycle_length = int(cycle_length)
 
-                if not last_period_str or not cycle_length_str:
-                    error = "Please provide both last period date and cycle length."
-                else:
-                    last_period = datetime.strptime(last_period_str, "%Y-%m-%d").date()
-                    cycle_length = int(cycle_length_str)
+            ovulation_day = last_period + timedelta(days=cycle_length - 14)
+            fertile_start = ovulation_day - timedelta(days=5)
+            fertile_end = ovulation_day
+            next_period = last_period + timedelta(days=cycle_length)
 
-            # =============================
-            # MODE 2: USER DOES NOT KNOW CYCLE
-            # =============================
-            elif mode == "unknown":
-                previous_period_str = request.form.get("previous_period")
-                last_period_str = request.form.get("last_period")
+            results = {
+                "last_period": last_period,
+                "cycle_length": cycle_length,
+                "ovulation_day": ovulation_day,
+                "fertile_start": fertile_start,
+                "fertile_end": fertile_end,
+                "next_period": next_period,
+            }
 
-                if not previous_period_str or not last_period_str:
-                    error = "Please provide both menstrual dates."
-                else:
-                    previous_period = datetime.strptime(previous_period_str, "%Y-%m-%d").date()
-                    last_period = datetime.strptime(last_period_str, "%Y-%m-%d").date()
-                    cycle_length = (last_period - previous_period).days
+            # prevent duplicates
+            exists = Cycle.query.filter_by(
+                user_id=current_user.id,
+                last_period=last_period,
+                cycle_length=cycle_length
+            ).first()
 
-            else:
-                error = "Invalid selection."
+            if not exists:
+                db.session.add(Cycle(
+                    user_id=current_user.id,
+                    last_period=last_period,
+                    cycle_length=cycle_length
+                ))
+                db.session.commit()
 
-            # =============================
-            # VALIDATION (after assignment)
-            # =============================
-            if not error:
-                if cycle_length < 21 or cycle_length > 35:
-                    error = "Cycle length must be between 21 and 35 days."
-
-            # =============================
-            # CALCULATION
-            # =============================
-            if not error:
-                ovulation_day = last_period + timedelta(days=cycle_length - 14)
-                fertile_start = ovulation_day - timedelta(days=5)
-                fertile_end = ovulation_day
-                next_period = last_period + timedelta(days=cycle_length)
-
-                results = {
-                    "last_period": last_period,
-                    "cycle_length": cycle_length,
-                    "ovulation_day": ovulation_day,
-                    "fertile_start": fertile_start,
-                    "fertile_end": fertile_end,
-                    "next_period": next_period,
-                }
-
-                # =============================
-                # SAVE TO DATABASE
-                # =============================
-                conn = get_db_connection()
-                cur = conn.cursor()
-                cur.execute(
-                    """
-                    INSERT INTO cycles (user_id, last_period, cycle_length)
-                    VALUES (%s, %s, %s)
-                    """,
-                    (session["user_id"], last_period, cycle_length)
-                )
-                conn.commit()
-                cur.close()
-                conn.close()
-
-        except ValueError:
-            error = "Invalid date or number entered."
+        except Exception:
+            error = "Invalid data"
 
     return render_template("dashboard.html", results=results, error=error)
 
+# ─── RUN ────────────────────────────────
 if __name__ == "__main__":
+    with app.app_context():
+        db.create_all()
     app.run(debug=True)

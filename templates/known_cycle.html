@@ -1,32 +1,34 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="form-wrapper">
 
-  <div class="form-card">
-    <h2>📅 Known Cycle Length</h2>
-    <p class="subtitle">
-      Enter your last menstrual date and average cycle length
-    </p>
+<div class="cycle-container">
 
-    <form method="POST" action="{{ url_for('dashboard') }}">
-      <input type="hidden" name="mode" value="known">
+  <div class="cycle-card">
 
-      <div class="input-group">
-        <label>Last Menstrual Date</label>
+    <h2>🌸 Cycle Calculator</h2>
+    <p class="subtitle">Enter your details to predict your cycle</p>
+
+    <form method="POST" action="{{ url_for('known_cycle') }}">
+
+      <div class="form-group">
+        <label>Last Period</label>
         <input type="date" name="last_period" required>
       </div>
 
-      <div class="input-group">
+      <div class="form-group">
         <label>Cycle Length (days)</label>
         <input type="number" name="cycle_length" min="21" max="35" placeholder="e.g. 28" required>
       </div>
 
-      <button type="submit" class="primary-btn">
+      <button type="submit" class="btn-floral">
         ✨ Calculate My Cycle
       </button>
+
     </form>
+
   </div>
 
 </div>
+
 {% endblock %}
