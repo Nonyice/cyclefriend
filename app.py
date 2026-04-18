@@ -3,6 +3,9 @@ from flask import Flask, render_template, redirect, url_for, request
 from flask_login import LoginManager, login_required, current_user
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
+from flask_migrate import Migrate
+
+
 
 from extensions import db
 from models import UserAccount, Cycle
@@ -10,6 +13,7 @@ from models import UserAccount, Cycle
 load_dotenv()
 
 app = Flask(__name__)
+migrate = Migrate(app, db)
 
 # ─── Config ─────────────────────────────
 app.secret_key = os.environ.get("SECRET_KEY", "dev_key")
@@ -41,6 +45,8 @@ app.register_blueprint(auth_bp)
 @app.before_request
 def log():
     print("➡️", request.method, request.path)
+
+
 
 # ─── Home ───────────────────────────────
 @app.route("/")
@@ -157,6 +163,9 @@ def dashboard():
 
 # ─── RUN ────────────────────────────────
 if __name__ == "__main__":
-    with app.app_context():
-        db.create_all()
-    app.run(debug=True)
+
+    if os.environ.get("RENDER") is None:
+        with app.app_context():
+            db.create_all()
+
+    app.run()
